@@ -360,13 +360,29 @@ contains
                    strairyT(i,j,iblk) = c0 
                    ssh(i,j,iblk)      = c0 
                 endif
-                if(umask(i,j,iblk)) then
-                   uocn(i,j,iblk) = real(uob(i1,j1), kind=dbl_kind) 
-                   vocn(i,j,iblk) = real(vob(i1,j1), kind=dbl_kind) 
+                if(grid_ice == 'B') then
+                   if(umask(i,j,iblk)) then
+                     uocn(i,j,iblk) = real(uob(i1,j1), kind=dbl_kind)
+                     vocn(i,j,iblk) = real(vob(i1,j1), kind=dbl_kind)
+                   else
+                     uocn(i,j,iblk) = c0
+                     vocn(i,j,iblk) = c0
+                   endif
+                elseif(grid_ice == 'C') then
+                   if(emask(i,j,iblk)) then
+                     uocn(i,j,iblk) = real(uoc(i1,j1), kind=dbl_kind)
+                   else
+                     uocn(i,j,iblk) = c0
+                   endif
+                   if(nmask(i,j,iblk)) then
+                     vocn(i,j,iblk) = real(voc(i1,j1), kind=dbl_kind)
+                   else
+                     vocn(i,j,iblk) = c0
+                   endif
                 else
-                   uocn(i,j,iblk) = c0 
-                   vocn(i,j,iblk) = c0 
-                endif  
+                   call abort_ice(error_message='unknown grid_ice', &
+                       file=u_FILE_u, line=__LINE__)
+                endif
           enddo
        enddo
     enddo
@@ -398,20 +414,21 @@ contains
                 ss_tlty(i,j,iblk) = c0
              endif
            elseif(grid_ice == 'C') then
-             if(nmask(i,j,iblk)) then
+             if(emask(i,j,iblk)) then
                 ss_tltx(i,j,iblk) = (ssh(i+1,j  ,iblk)-ssh(i,j  ,iblk)) &
                                      /dxE(i,j,iblk)
              else
                 ss_tltx(i,j,iblk) = c0
              endif
-             if(emask(i,j,iblk)) then
+             if(nmask(i,j,iblk)) then
                 ss_tlty(i,j,iblk) = (ssh(i,j+1,iblk) - ssh(i,j  ,iblk)) &
                                      /dyN(i,j,iblk)
              else
                 ss_tlty(i,j,iblk) = c0
              endif
            else
-              call abort_ice(error_message='unknown grid_ice')
+             call abort_ice(error_message='unknown grid_ice', &
+                     file=u_FILE_u, line=__LINE__)
            endif
        enddo
        enddo
