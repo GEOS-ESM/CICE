@@ -11,6 +11,8 @@
 
       module ice_step_mod
 
+#define COUPLE_CICE6_AND_WAVES__disable
+
       use ice_kinds_mod
       use ice_blocks, only: block, get_block
       use ice_blocks, only: nx_block, ny_block
@@ -716,9 +718,20 @@
          if (tmask(i,j,iblk)) then
 #endif
 
+#if defined (COUPLE_CICE6_AND_WAVES)
+         print *, 'DBG:'//trim(subname), ' tr_fsd = ', tr_fsd
+#endif
+
          ! significant wave height for FSD
          if (tr_fsd) &
          wave_sig_ht(i,j,iblk) = c4*SQRT(SUM(wave_spectrum(i,j,:,iblk)*dwavefreq(:)))
+
+#if defined (COUPLE_CICE6_AND_WAVES)
+!         print *, 'DBG:'//trim(subname), ' dwavefreq = ', maxval(dwavefreq)
+!         print *, 'DBG:'//trim(subname), ' wave_spectrum = ', maxval(wave_spectrum)
+!         print *, 'DBG:'//trim(subname), ' wave_sig_ht = ', maxval(wave_sig_ht)
+         print *, 'DBG:'//trim(subname), ' call icepack_step_therm2, ..., waves, ...'
+#endif
 
          call icepack_step_therm2(dt=dt, ncat=ncat, &
                       nltrcr=nltrcr, nilyr=nilyr, nslyr=nslyr, nblyr=nblyr, &
@@ -943,6 +956,11 @@
       if (icepack_warnings_aborted()) call abort_ice(error_message=subname, &
          file=__FILE__, line=__LINE__)
 
+#if defined (COUPLE_CICE6_AND_WAVES)
+         print *, 'DBG:'//trim(subname), ' call icepack_step_wavefracture (...,waves,...)'
+#endif
+
+
       !$OMP PARALLEL DO PRIVATE(iblk,i,j,ilo,ihi,jlo,jhi,this_block)
       do iblk = 1, nblocks
 
@@ -951,6 +969,10 @@
          ihi = this_block%ihi
          jlo = this_block%jlo
          jhi = this_block%jhi
+
+#if defined (COUPLE_CICE6_AND_WAVES)
+         print *, 'DBG:'//trim(subname), 'aice = ', maxval(aice(ilo:ihi,jlo:jhi,:))
+#endif
 
          do j = jlo, jhi
          do i = ilo, ihi

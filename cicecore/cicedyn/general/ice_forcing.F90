@@ -18,6 +18,8 @@
 !
       module ice_forcing
 
+#define COUPLE_CICE6_AND_WAVES
+
       use ice_kinds_mod
       use ice_boundary, only: ice_HaloUpdate
       use ice_blocks, only: nx_block, ny_block
@@ -5374,6 +5376,13 @@
       character(char_len) :: wave_spec_type
       logical (kind=log_kind) :: wave_spec
       character(len=*), parameter :: subname = '(get_wave_spec)'
+
+#if defined (COUPLE_CICE6_AND_WAVES) 
+      print *, 'DBG: ERROR', 'We should not be calling get_wave_spec() in GEOS!!!'
+
+      call abort_ice(error_message=trim(subname)//' should not be called in GEOS!', &
+         file=__FILE__, line=__LINE__)
+#endif
 
       if (local_debug .and. my_task == master_task) write(nu_diag,*) subname,'fdbg start'
 

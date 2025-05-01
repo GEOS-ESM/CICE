@@ -1,5 +1,5 @@
 module ice_import_export
-
+#define COUPLE_CICE6_AND_WAVES
   use ESMF
   use ice_kinds_mod      , only : int_kind, dbl_kind, real_kind, char_len, log_kind
   use ice_constants      , only : c0, c1, p5, p25, spval_dbl, radius
@@ -40,6 +40,9 @@ module ice_import_export
   use icepack_intfc      , only : icepack_query_parameters, icepack_query_tracer_flags
   use icepack_intfc      , only : icepack_liquidus_temperature
   use icepack_intfc      , only : icepack_sea_freezing_temperature
+#if defined (COUPLE_CICE6_AND_WAVES)
+  use ice_arrays_column  , only : wave_spectrum
+#endif
 
   implicit none
   public
@@ -309,6 +312,65 @@ contains
     rc = ESMF_SUCCESS
 
   end subroutine ice_import_radiation
+
+#if defined (COUPLE_CICE6_AND_WAVES)
+subroutine ice_import_waves( ef, rc )
+
+    ! input/output variables
+    real(kind=real_kind) ,     intent(in) :: ef(:,:,:)
+    integer              ,     intent(out):: rc
+
+    ! local variables
+    integer                          :: i, j, k, iblk
+    integer                          :: i1, j1
+    integer                          :: ilo, ihi, jlo, jhi !beginning and end of physical domain
+    type(block)                      :: this_block         ! block information for current block
+!!  real(kind=dbl_kind)              :: ssh(nx_block,ny_block,max_blocks) 
+    character(len=*),   parameter    :: subname = 'ice_import_waves'
+    integer                          :: nfreq
+    !-----------------------------------------------------
+    nfreq = 37
+
+    if (nfreq /= 37) then
+       call abort_ice(trim(subname)//": ERROR nfreq not equal to 25 ")
+    end if
+
+    do k = 1, nfreq
+       do iblk = 1, nblocks
+          this_block = get_block(blocks_ice(iblk),iblk)
+          ilo = this_block%ilo
+          ihi = this_block%ihi
+          jlo = this_block%jlo
+          jhi = this_block%jhi
+
+          do j = jlo, jhi
+             j1 = j - nghost 
+             do i = ilo, ihi
+                i1 = i - nghost 
+                   if(tmask(i,j,iblk)) then
+                      wave_spectrum(i,j,k,iblk) = 1.0 * real(ef(i1,j1,k), kind=dbl_kind)
+
+                      ! WIP: handle regridding issues or mismatched points
+                      if (wave_spectrum(i,j,k,iblk) > 1e3) then
+                          wave_spectrum(i,j,k,iblk) = c0
+                      endif
+                   else
+                      wave_spectrum(i,j,k,iblk) = c0 
+                   endif
+             enddo
+          enddo
+       enddo
+    enddo
+
+#if (0)
+    call ice_HaloUpdate (ssh,     halo_info, &
+                         field_loc_center, field_type_scalar)
+#endif
+
+    rc = ESMF_SUCCESS
+
+  end subroutine ice_import_waves
+#endif
 
   subroutine ice_import_dyna( taux, tauy, slv, uob, vob, uoc, voc, rc )
 
