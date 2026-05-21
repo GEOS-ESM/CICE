@@ -214,7 +214,7 @@
       ! this avoids using it uninitialzed in 'calendar' below
       nstreams = 0
 
-#if defined (CESMCOUPLED) || defined (GEOSCOUPLED)
+#if defined (CESMCOUPLED)
       ! calendar_type set by coupling
 #else
       calendar_type = ''
