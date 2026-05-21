@@ -87,20 +87,6 @@ contains
 
   end subroutine cice_init1
 
-  subroutine cice_delayed_init
-
-    !  Initialize the basic state, and all necessary parameters for
-    !  running the CICE model.
-
-    use ice_grid             , only: init_grid2
-
-    character(len=*), parameter :: subname = '(cice_delayed_init)'
-    !----------------------------------------------------
-
-    call init_grid2           ! finish building grid
-
-  end subroutine cice_delayed_init
-
   subroutine cice_cal_init(yr, mo, dy, hr, mn, sc)
 
     !  Initialize the basic state, and all necessary parameters for
@@ -108,7 +94,7 @@ contains
 
     use ice_calendar         , only: dt, dt_dyn, istep, istep1, write_ic, init_calendar, calendar
 
-    character(len=*), parameter :: subname = '(cice_delayed_init)'
+    character(len=*), parameter :: subname = '(cice_cal_init)'
     !----------------------------------------------------
 
     integer (kind=int_kind), intent(in) :: &
