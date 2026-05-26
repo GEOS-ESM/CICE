@@ -19,7 +19,6 @@ module CICE_InitMod
   private
   public :: cice_init1
   public :: cice_init2
-  public :: cice_delayed_init
   public :: cice_cal_init
 
   private :: init_restart
