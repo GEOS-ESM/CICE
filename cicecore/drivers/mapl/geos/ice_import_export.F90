@@ -644,12 +644,18 @@ contains
 
     if (trim(fldname) == 'FRACICE') then
         call arr_setexport_3d(fld,  aice,        rc)  
-    elseif (trim(fldname) == 'FHOCN') then
+    elseif (trim(fldname) == 'FHOCN_AI') then
         call arr_setexport_3d(fld,  fhocn_ai,    rc)  
+    elseif (trim(fldname) == 'FHOCN') then
+        call arr_setexport_3d(fld,  fhocn,       rc)
+    elseif (trim(fldname) == 'FRESH_AI') then
+        call arr_setexport_3d(fld,  fresh_ai,    rc)
     elseif (trim(fldname) == 'FRESH') then
-        call arr_setexport_3d(fld,  fresh_ai,    rc)  
+        call arr_setexport_3d(fld,  fresh,       rc)
+    elseif (trim(fldname) == 'FSALT_AI') then
+        call arr_setexport_3d(fld,  fsalt_ai,    rc)
     elseif (trim(fldname) == 'FSALT') then
-        call arr_setexport_3d(fld,  fsalt_ai,    rc)  
+        call arr_setexport_3d(fld,  fsalt,       rc)
     else
         call ESMF_LogWrite(trim(subname)//": "//trim(fldname)//" not available for export", ESMF_LOGMSG_ERROR)
         rc = ESMF_FAILURE
